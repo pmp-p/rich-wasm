@@ -544,14 +544,23 @@ COLOR_SYSTEMS = {
 
 _COLOR_SYSTEMS_NAMES = {system: name for name, system in COLOR_SYSTEMS.items()}
 
+import sys
+if sys.platform in ('emscripten','wasi'):
+    @dataclass
+    class ConsoleThreadLocals(object):
+        """Thread local values for Console context."""
 
-@dataclass
-class ConsoleThreadLocals(threading.local):
-    """Thread local values for Console context."""
+        theme_stack: ThemeStack
+        buffer: List[Segment] = field(default_factory=list)
+        buffer_index: int = 0
+else:
+    @dataclass
+    class ConsoleThreadLocals(threading.local):
+        """Thread local values for Console context."""
 
-    theme_stack: ThemeStack
-    buffer: List[Segment] = field(default_factory=list)
-    buffer_index: int = 0
+        theme_stack: ThemeStack
+        buffer: List[Segment] = field(default_factory=list)
+        buffer_index: int = 0
 
 
 class RenderHook(ABC):
